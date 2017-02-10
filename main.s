@@ -179,7 +179,7 @@ Breathe
 	MOV	R3,#0			;R3 has 0 if the on time should be decreasing and 1 if on time should be increasing
 ;delay 1, on delay	
 	MOV	R6,R1
-	BX	BreatheDelay
+	BL	BreatheDelay
 	LDR	R5,[R0]		;load data into R5
 	MOV	R3,#0x01
 	BIC	R5,R3
@@ -187,7 +187,7 @@ Breathe
 	STR	R5,[R0]
 ;delay 2, off delay
 	MOV	R6,R2
-	BX	BreatheDelay
+	BL	BreatheDelay
 	LDR	R5,[R0]		;load datat into R5
 	MOV	R3,#0xFFE
 	AND	R5,R3
@@ -209,7 +209,7 @@ BrtSkip2
 IncOnTime
 	ADD	R1,#1
 	SUB	R2,#1
-B	loop2
+	B	loop2
 	
 
 
