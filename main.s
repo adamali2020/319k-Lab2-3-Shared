@@ -98,14 +98,14 @@ Start
 loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
-	AND R1, R1, #0x10	; Isolate PF4
+	ANDS R1, R1, #0x10	; Isolate PF4
 	BNE flash
 flash	
 	LDR R1, =GPIO_PORTE_DATA_R
 	LDR R0, [R1]
-	AND R0, R0, #0x2
+	ANDS R0, R0, #0x2
 	BEQ skip
-	ADD R7, R7, #0
+	ADDS R7, R7, #0
 ;	LDR R1, =wasPushed
 ;	LDR R0, [R1]
 ;	ADD R0, R0, #0
@@ -137,11 +137,11 @@ skip
 ;	LDR R1, =wasPushed
 ;	LDR R0, [R1]
 ;	ADD R0, R0, #0
-	ADD R7, R7, #0
+	ADDS R7, R7, #0
 	BEQ loop2
 	LDR R1, =GPIO_PORTE_DATA_R
 	LDR R0, [R1]
-	AND R0, R0, #0x2
+	ANDS R0, R0, #0x2
 	BNE loop2
 ;	LDR R1, =wasPushed
 ;	MOV R0, #0
@@ -149,7 +149,7 @@ skip
 	AND R7, R7, #0
 	ADD R4, R4, #1
 	MOV R1, #6
-	SUB R5, R1, R4
+	SUBS R5, R1, R4
 	BNE loop2
 	AND R4, R4, #0
 	B loop2
@@ -157,7 +157,7 @@ skip
 ;*******************************************************************************
 ;Delay subroutine, punt number of ms to delay in R6, uses R6 and R9
 DelaySubroutine
-	CMP	R6,#0
+	ADDS	R6,#0
 	BNE	delaySkip
 	BX	LR
 delaySkip	

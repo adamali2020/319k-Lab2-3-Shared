@@ -106,7 +106,7 @@ ARM Macro Assembler    Page 2
    51 00000004 B662            CPSIE            I           ; TExaS voltmeter, 
                                                             scope runs on inter
                                                             rupts
-   52 00000006 4848            LDR              R0,=SYSCTL_RCGCGPIO_R 
+   52 00000006 4847            LDR              R0,=SYSCTL_RCGCGPIO_R 
                                                             ;enable the clock
    53 00000008 6801            LDR              R1,[R0]
    54 0000000A F041 0130       ORR              R1,#0x30
@@ -115,7 +115,7 @@ ARM Macro Assembler    Page 2
    57 00000012 BF00            NOP
    58 00000014 BF00            NOP
    59 00000016 BF00            NOP
-   60 00000018 4844            LDR              R0,=GPIO_PORTE_DIR_R 
+   60 00000018 4843            LDR              R0,=GPIO_PORTE_DIR_R 
                                                             ;enable direction
    61 0000001A 6802            LDR              R2,[R0]
    62 0000001C F04F 0101       MOV              R1,#0x01    ;ports E0 and F4 ar
@@ -124,7 +124,7 @@ ARM Macro Assembler    Page 2
    64 00000024 F06F 0102       MOV              R1,#0xFFFFFFFD
    65 00000028 EA02 0201       AND              R2,R1
    66 0000002C 6002            STR              R2,[R0]
-   67 0000002E 4840            LDR              R0,=GPIO_PORTF_DIR_R
+   67 0000002E 483F            LDR              R0,=GPIO_PORTF_DIR_R
    68 00000030 6801            LDR              R1,[R0]
    69 00000032 F640 72EF       MOV              R2,#0xFEF
    70 00000036 EA01 0102       AND              R1,R2
@@ -135,178 +135,178 @@ ARM Macro Assembler    Page 3
 
 
    71 0000003A 6001            STR              R1,[R0]
-   72 0000003C 483D            LDR              R0,=GPIO_PORTF_PUR_R ;enable pu
+   72 0000003C 483C            LDR              R0,=GPIO_PORTF_PUR_R ;enable pu
                                                             ll up resistors for
                                                              PF4
    73 0000003E 6801            LDR              R1,[R0]
    74 00000040 F04F 0210       MOV              R2,#0x010
    75 00000044 EA41 0102       ORR              R1,R2
    76 00000048 6001            STR              R1,[R0]
-   77 0000004A 483B            LDR              R0,=GPIO_PORTF_DEN_R ;enable da
+   77 0000004A 483A            LDR              R0,=GPIO_PORTF_DEN_R ;enable da
                                                             ta for port PF4
    78 0000004C 6801            LDR              R1,[R0]
    79 0000004E F04F 0210       MOV              R2,#0x010
    80 00000052 EA41 0102       ORR              R1,R2
    81 00000056 6001            STR              R1,[R0]
-   82 00000058 4838            LDR              R0,=GPIO_PORTE_DEN_R ;enable da
+   82 00000058 4837            LDR              R0,=GPIO_PORTE_DEN_R ;enable da
                                                             ta for PE0 and PE1
    83 0000005A 6801            LDR              R1,[R0]
    84 0000005C F04F 02FF       MOV              R2,#0xFF
    85 00000060 EA41 0102       ORR              R1,R2
    86 00000064 6001            STR              R1,[R0]
-   87 00000066 4836            LDR              R0,=GPIO_PORTF_AFSEL_R 
+   87 00000066 4835            LDR              R0,=GPIO_PORTF_AFSEL_R 
                                                             ;clears AFSEL
    88 00000068 F04F 0100       MOV              R1,#0x0
    89 0000006C 6001            STR              R1,[R0]
-   90 0000006E 4835            LDR              R0,=GPIO_PORTE_AFSEL_R 
+   90 0000006E 4834            LDR              R0,=GPIO_PORTE_AFSEL_R 
                                                             ;clears AFSEL
    91 00000070 F04F 0100       MOV              R1,#0x0
    92 00000074 6001            STR              R1,[R0]
    93 00000076 F04F 0401       MOV              R4, #1
    94 0000007A F04F 0700       MOV              R7, #0
    95 0000007E F04F 0100       MOV              R1,#0
-   96 00000082 4A31            LDR              R2,=wasPushed
+   96 00000082 4A30            LDR              R2,=wasPushed
    97 00000084 6011            STR              R1,[R2]
    98 00000086         loop2
-   99 00000086 4831            LDR              R0, =GPIO_PORTF_DATA_R
+   99 00000086 4830            LDR              R0, =GPIO_PORTF_DATA_R
   100 00000088 6801            LDR              R1, [R0]
-  101 0000008A F001 0110       AND              R1, R1, #0x10 ; Isolate PF4
+  101 0000008A F011 0110       ANDS             R1, R1, #0x10 ; Isolate PF4
   102 0000008E D1FF            BNE              flash
   103 00000090         flash
-  104 00000090 492F            LDR              R1, =GPIO_PORTE_DATA_R
+  104 00000090 492E            LDR              R1, =GPIO_PORTE_DATA_R
   105 00000092 6808            LDR              R0, [R1]
-  106 00000094 F000 0002       AND              R0, R0, #0x2
-  107 00000098 D004            BEQ              skip
-  108 0000009A F107 0700       ADD              R7, R7, #0
-  109 0000009E         ; LDR R1, =wasPushed
-  110 0000009E         ; LDR R0, [R1]
-  111 0000009E         ; ADD R0, R0, #0
-  112 0000009E D101            BNE              skip
-  113 000000A0 F04F 0701       MOV              R7, #1
-  114 000000A4         ; MOV R0, #1
-  115 000000A4         ; STR R0, [R1]
-  116 000000A4         skip
-  117 000000A4 F04F 0205       MOV              R2, #5
-  118 000000A8 EBA2 0204       SUB              R2, R2, R4
-  119 000000AC F04F 0119       MOV              R1, #25
-  120 000000B0 FB02 F601       MUL              R6, R2, R1
-  121 000000B4 F000 F829       BL               DelaySubroutine
-  122 000000B8 4825            LDR              R0, =GPIO_PORTE_DATA_R
-  123 000000BA 6802            LDR              R2,[R0]     ;load data into R2
+  106 00000094 F010 0002       ANDS             R0, R0, #0x2
+  107 00000098 D003            BEQ              skip
+  108 0000009A 1C3F            ADDS             R7, R7, #0
+  109 0000009C         ; LDR R1, =wasPushed
+  110 0000009C         ; LDR R0, [R1]
+  111 0000009C         ; ADD R0, R0, #0
+  112 0000009C D101            BNE              skip
+  113 0000009E F04F 0701       MOV              R7, #1
+  114 000000A2         ; MOV R0, #1
+  115 000000A2         ; STR R0, [R1]
+  116 000000A2         skip
+  117 000000A2 F04F 0205       MOV              R2, #5
+  118 000000A6 EBA2 0204       SUB              R2, R2, R4
+  119 000000AA F04F 0119       MOV              R1, #25
+  120 000000AE FB02 F601       MUL              R6, R2, R1
+  121 000000B2 F000 F827       BL               DelaySubroutine
+  122 000000B6 4825            LDR              R0, =GPIO_PORTE_DATA_R
+  123 000000B8 6802            LDR              R2,[R0]     ;load data into R2
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-  124 000000BC F04F 0301       MOV              R3,#0x01
-  125 000000C0 EA22 0203       BIC              R2,R3
-  126 000000C4 EA42 0203       ORR              R2,R3
-  127 000000C8 6002            STR              R2,[R0]     ; Turns on the LED
-  128 000000CA         
-  129 000000CA F04F 0119       MOV              R1, #25
-  130 000000CE FB04 F601       MUL              R6, R4, R1
-  131 000000D2 F000 F81A       BL               DelaySubroutine
-  132 000000D6 6802            LDR              R2,[R0]     ;load data into R2
-  133 000000D8 F640 71FE       MOV              R1,#0xFFE
-  134 000000DC EA02 0201       AND              R2,R1
-  135 000000E0 6002            STR              R2,[R0]
-  136 000000E2         ;Check if button has been pushed and if it has then chec
+  124 000000BA F04F 0301       MOV              R3,#0x01
+  125 000000BE EA22 0203       BIC              R2,R3
+  126 000000C2 EA42 0203       ORR              R2,R3
+  127 000000C6 6002            STR              R2,[R0]     ; Turns on the LED
+  128 000000C8         
+  129 000000C8 F04F 0119       MOV              R1, #25
+  130 000000CC FB04 F601       MUL              R6, R4, R1
+  131 000000D0 F000 F818       BL               DelaySubroutine
+  132 000000D4 6802            LDR              R2,[R0]     ;load data into R2
+  133 000000D6 F640 71FE       MOV              R1,#0xFFE
+  134 000000DA EA02 0201       AND              R2,R1
+  135 000000DE 6002            STR              R2,[R0]
+  136 000000E0         ;Check if button has been pushed and if it has then chec
                        k if it has been released
-  137 000000E2         ; LDR R1, =wasPushed
-  138 000000E2         ; LDR R0, [R1]
-  139 000000E2         ; ADD R0, R0, #0
-  140 000000E2 F107 0700       ADD              R7, R7, #0
-  141 000000E6 D0CE            BEQ              loop2
-  142 000000E8 4919            LDR              R1, =GPIO_PORTE_DATA_R
-  143 000000EA 6808            LDR              R0, [R1]
-  144 000000EC F000 0002       AND              R0, R0, #0x2
-  145 000000F0 D1C9            BNE              loop2
-  146 000000F2         ; LDR R1, =wasPushed
-  147 000000F2         ; MOV R0, #0
-  148 000000F2         ; STR R0, [R1]
-  149 000000F2 F007 0700       AND              R7, R7, #0
-  150 000000F6 F104 0401       ADD              R4, R4, #1
-  151 000000FA F04F 0106       MOV              R1, #6
-  152 000000FE EBA1 0504       SUB              R5, R1, R4
-  153 00000102 D1C0            BNE              loop2
-  154 00000104 F004 0400       AND              R4, R4, #0
-  155 00000108 E7BD            B                loop2
-  156 0000010A         
-  157 0000010A         ;*******************************************************
+  137 000000E0         ; LDR R1, =wasPushed
+  138 000000E0         ; LDR R0, [R1]
+  139 000000E0         ; ADD R0, R0, #0
+  140 000000E0 1C3F            ADDS             R7, R7, #0
+  141 000000E2 D0D0            BEQ              loop2
+  142 000000E4 4919            LDR              R1, =GPIO_PORTE_DATA_R
+  143 000000E6 6808            LDR              R0, [R1]
+  144 000000E8 F010 0002       ANDS             R0, R0, #0x2
+  145 000000EC D1CB            BNE              loop2
+  146 000000EE         ; LDR R1, =wasPushed
+  147 000000EE         ; MOV R0, #0
+  148 000000EE         ; STR R0, [R1]
+  149 000000EE F007 0700       AND              R7, R7, #0
+  150 000000F2 F104 0401       ADD              R4, R4, #1
+  151 000000F6 F04F 0106       MOV              R1, #6
+  152 000000FA 1B0D            SUBS             R5, R1, R4
+  153 000000FC D1C3            BNE              loop2
+  154 000000FE F004 0400       AND              R4, R4, #0
+  155 00000102 E7C0            B                loop2
+  156 00000104         
+  157 00000104         ;*******************************************************
                        ************************
-  158 0000010A         ;Delay subroutine, punt number of ms to delay in R6, use
+  158 00000104         ;Delay subroutine, punt number of ms to delay in R6, use
                        s R6 and R9
-  159 0000010A         DelaySubroutine
-  160 0000010A 2E00            CMP              R6,#0
-  161 0000010C D100            BNE              delaySkip
-  162 0000010E 4770            BX               LR
-  163 00000110         delaySkip
-  164 00000110 3E01            SUBS             R6,#1
-  165 00000112         delayLoop1
-  166 00000112 F44F 597A       MOV              R9,#16000
-  167 00000116         delayLoop2
-  168 00000116 F1B9 0901       SUBS             R9,#1
-  169 0000011A D1FC            BNE              delayLoop2
-  170 0000011C 1E76            SUBS             R6,R6,#1
-  171 0000011E D1F8            BNE              delayLoop1
-  172 00000120 4770            BX               LR
-  173 00000122         
-  174 00000122 00 00 00 
+  159 00000104         DelaySubroutine
+  160 00000104 3600            ADDS             R6,#0
+  161 00000106 D100            BNE              delaySkip
+  162 00000108 4770            BX               LR
+  163 0000010A         delaySkip
+  164 0000010A 3E01            SUBS             R6,#1
+  165 0000010C         delayLoop1
+  166 0000010C F44F 597A       MOV              R9,#16000
+  167 00000110         delayLoop2
+  168 00000110 F1B9 0901       SUBS             R9,#1
+  169 00000114 D1FC            BNE              delayLoop2
+  170 00000116 1E76            SUBS             R6,R6,#1
+  171 00000118 D1F8            BNE              delayLoop1
+  172 0000011A 4770            BX               LR
+  173 0000011C         
+  174 0000011C 00 00 00 
               00       wasPushed
                                SPACE            4
-  175 00000126         
-  176 00000126         loop
-  177 00000126         
+  175 00000120         
+  176 00000120         loop
+  177 00000120         
 
 
 
 ARM Macro Assembler    Page 5 
 
 
-  178 00000126 E7FE            B                loop
-  179 00000128         ; 
-  180 00000128         ;breathing led code
-  181 00000128         ; LDR R0,=GPIO_PORTE_DATA_R ;R0 has address of port e da
+  178 00000120 E7FE            B                loop
+  179 00000122         ; 
+  180 00000122         ;breathing led code
+  181 00000122         ; LDR R0,=GPIO_PORTE_DATA_R ;R0 has address of port e da
                        ta
-  182 00000128         ; MOV R1,#0x132000
-  183 00000128         ; ADD R1,R1,R1    ;R1 has the ammount of time for the On
+  182 00000122         ; MOV R1,#0x132000
+  183 00000122         ; ADD R1,R1,R1    ;R1 has the ammount of time for the On
                         delay
-  184 00000128         ; MOV R2,#0x0     ;R2 has the ammount of time for the Of
+  184 00000122         ; MOV R2,#0x0     ;R2 has the ammount of time for the Of
                        f delay
-  185 00000128         ;delay 1, on delay 
-  186 00000128         ; MOV R3,R1
-  187 00000128         ; SUBS R3,#1  
-  188 00000128         ;wait3
-  189 00000128         ;BNE wait3  ;delay loop
-  190 00000128         ; LDR R5,[R0]  ;load data into R5
-  191 00000128         ; MOV R3,#0x01
-  192 00000128         ; BIC R5,R3
-  193 00000128         ; ORR R5,R3
-  194 00000128         ; STR R5,[R0]
-  195 00000128         ;delay 2, off delay
-  196 00000128         ;wait4
-  197 00000128         ; MOV R3,R2
-  198 00000128         ; SUBS R3,#1
-  199 00000128         ; BNE wait4  ;delay loop
-  200 00000128         ; LDR R5,[R0]  ;load datat into R5
-  201 00000128         ; MOV R3,#0xFFE
-  202 00000128         ; AND R5,R3
-  203 00000128         ; STR R5,[R0]
-  204 00000128         ;check to see if on time should be increasing of decreas
+  185 00000122         ;delay 1, on delay 
+  186 00000122         ; MOV R3,R1
+  187 00000122         ; SUBS R3,#1  
+  188 00000122         ;wait3
+  189 00000122         ;BNE wait3  ;delay loop
+  190 00000122         ; LDR R5,[R0]  ;load data into R5
+  191 00000122         ; MOV R3,#0x01
+  192 00000122         ; BIC R5,R3
+  193 00000122         ; ORR R5,R3
+  194 00000122         ; STR R5,[R0]
+  195 00000122         ;delay 2, off delay
+  196 00000122         ;wait4
+  197 00000122         ; MOV R3,R2
+  198 00000122         ; SUBS R3,#1
+  199 00000122         ; BNE wait4  ;delay loop
+  200 00000122         ; LDR R5,[R0]  ;load datat into R5
+  201 00000122         ; MOV R3,#0xFFE
+  202 00000122         ; AND R5,R3
+  203 00000122         ; STR R5,[R0]
+  204 00000122         ;check to see if on time should be increasing of decreas
                        ing
-  205 00000128         ; MOV R3,#0x132000
-  206 00000128         ; ADD R5,R1,R2
-  207 00000128         ;for later, make a register you use to determine if you 
+  205 00000122         ; MOV R3,#0x132000
+  206 00000122         ; ADD R5,R1,R2
+  207 00000122         ;for later, make a register you use to determine if you 
                        are adding to the on or off register (R5), make a way to
                         flip that determining register from a 1 or 0
-  208 00000128         ;make a loop that subtracts from R1 and adds to R2 if R5
+  208 00000122         ;make a loop that subtracts from R1 and adds to R2 if R5
                         is 1 or 0 and visa versa
-  209 00000128         
-  210 00000128                 ALIGN                        ; make sure the end
+  209 00000122         
+  210 00000122 00 00           ALIGN                        ; make sure the end
                                                              of this section is
                                                              aligned
-  211 00000128                 END                          ; end of file
+  211 00000124                 END                          ; end of file
               400FE608 
               40024400 
               40025400 
@@ -335,7 +335,7 @@ Symbol: .text
    Uses
       None
 Comment: .text unused
-DelaySubroutine 0000010A
+DelaySubroutine 00000104
 
 Symbol: DelaySubroutine
    Definitions
@@ -352,7 +352,7 @@ Symbol: Start
    Uses
       At line 47 in file main.s
 Comment: Start used once
-delayLoop1 00000112
+delayLoop1 0000010C
 
 Symbol: delayLoop1
    Definitions
@@ -360,7 +360,7 @@ Symbol: delayLoop1
    Uses
       At line 171 in file main.s
 Comment: delayLoop1 used once
-delayLoop2 00000116
+delayLoop2 00000110
 
 Symbol: delayLoop2
    Definitions
@@ -368,7 +368,7 @@ Symbol: delayLoop2
    Uses
       At line 169 in file main.s
 Comment: delayLoop2 used once
-delaySkip 00000110
+delaySkip 0000010A
 
 Symbol: delaySkip
    Definitions
@@ -384,7 +384,7 @@ Symbol: flash
    Uses
       At line 102 in file main.s
 Comment: flash used once
-loop 00000126
+loop 00000120
 
 
 
@@ -409,7 +409,7 @@ Symbol: loop2
       At line 153 in file main.s
       At line 155 in file main.s
 
-skip 000000A4
+skip 000000A2
 
 Symbol: skip
    Definitions
@@ -418,7 +418,7 @@ Symbol: skip
       At line 107 in file main.s
       At line 112 in file main.s
 
-wasPushed 00000122
+wasPushed 0000011C
 
 Symbol: wasPushed
    Definitions
