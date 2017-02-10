@@ -91,7 +91,7 @@ Start
 	MOV	R1,#0x0
 	STR R1,[R0]
 	MOV R4, #1
-	MOV R6, #0
+	MOV R7, #0
 	MOV R1,#0
 	LDR	R2,=wasPushed
 	STR	R1,[R2]
@@ -99,100 +99,75 @@ loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
 	AND R1, R1, #0x10	; Isolate PF4
-;<<<<<<< HEAD
-	BNE	flash			;Branch to non-breathing part of code
-;**********************************************************
-;breathing led code
-	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
-	MOV R1,#0x132000
-	ADD	R1,R1,R1				;R1 has the ammount of time for the On delay
-	MOV	R2,#0x0					;R2 has the ammount of time for the Off delay
-;delay 1, on delay	
-	MOV	R3,R1
-	SUBS R3,#1		
-wait3
-	BNE	wait3		;delay loop
-	LDR	R5,[R0]		;load data into R5
-	MOV	R3,#0x01
-	BIC	R5,R3
-	ORR	R5,R3
-	STR	R5,[R0]
-;delay 2, off delay
-wait4
-	MOV	R3,R2
-	SUBS R3,#1
-	BNE	wait4		;delay loop
-	LDR	R5,[R0]		;load datat into R5
-	MOV	R3,#0xFFE
-	AND	R5,R3
-	STR	R5,[R0]
-;check to see if on time should be increasing of decreasing
-	MOV	R3,#0x132000
-	ADD	R5,R1,R2
-;for later, make a register you use to determine if you are adding to the on or off register (R5), make a way to flip that determining register from a 1 or 0
-;make a loop that subtracts from R1 and adds to R2 if R5 is 1 or 0 and visa versa
-	B 	loop2	
-	
-	BNE	flash
-						; Breathing LED
-;>>>>>>> origin/master
+	BNE flash
 flash	
-	LDR R0, =GPIO_PORTE_DATA_R
-	ADD	R6, R6, #0
+	LDR R1, =GPIO_PORTE_DATA_R
+	LDR R0, [R1]
+	AND R0, R0, #0x2
 	BEQ skip
-	LDR R5, [R0]
-	AND R5, R5, #0x2
-	BNE noreset
-	AND R6, R6, #0
-noreset
-	B not0
+	ADD R7, R7, #0
+;	LDR R1, =wasPushed
+;	LDR R0, [R1]
+;	ADD R0, R0, #0
+	BNE skip
+	MOV R7, #1
+;	MOV R0, #1
+;	STR R0, [R1]
 skip
-	LDR R5, [R0]
-	AND	R5, R5, #0x2	; Mask PORTE_DATA so that only PE1(button) is kept
-	BEQ	not0			; Takes branch if button has not been pressed
-	ADD R4, R4, #1		; Increments
-	ADD R6, R6, #1		; R6 = 1 means button has been pressed and hasn't been released yet
-	SUBS R5, R4, #6
-	BNE not0			; Checks to see if buton has been pressed 5 times meaning it should be at 0%
-	AND R4, R4, #0		; R4 has the multiplier for %20 incrememnts of the led time on
-
-not0	
-	LDR R1, =initial
 	MOV R2, #5
 	SUB R2, R2, R4
-	MUL R2, R2, R1
-wait
-	SUBS R2,#1		
-	BNE	wait		;delay loop
+	MOV R1, #25
+	MUL R6, R2, R1
+	BL DelaySubroutine
+	LDR R0, =GPIO_PORTE_DATA_R
 	LDR	R2,[R0]		;load data into R2
 	MOV	R3,#0x01
 	BIC	R2,R3
 	ORR	R2,R3
 	STR	R2,[R0]		; Turns on the LED
-	MUL R1, R1, R4
-wait2
-	SUBS R1,#1
-	BNE	wait2		;delay loop
+
+	MOV R1, #25
+	MUL R6, R4, R1
+	BL DelaySubroutine
 	LDR	R2,[R0]		;load data into R2
 	MOV	R1,#0xFFE
 	AND	R2,R1
 	STR	R2,[R0]
+					;Check if button has been pushed and if it has then check if it has been released
+;	LDR R1, =wasPushed
+;	LDR R0, [R1]
+;	ADD R0, R0, #0
+	ADD R7, R7, #0
+	BEQ loop2
+	LDR R1, =GPIO_PORTE_DATA_R
+	LDR R0, [R1]
+	AND R0, R0, #0x2
+	BNE loop2
+;	LDR R1, =wasPushed
+;	MOV R0, #0
+;	STR R0, [R1]
+	AND R7, R7, #0
+	ADD R4, R4, #1
+	MOV R1, #6
+	SUB R5, R1, R4
+	BNE loop2
+	AND R4, R4, #0
 	B loop2
 
 ;*******************************************************************************
-;Delay subroutine, punt number of ms to delay in R8, uses R8 and R9
+;Delay subroutine, punt number of ms to delay in R6, uses R6 and R9
 DelaySubroutine
-	CMP	R8,#0
+	CMP	R6,#0
 	BNE	delaySkip
 	BX	LR
 delaySkip	
-	SUBS R8,#1
+	SUBS R6,#1
 delayLoop1
 	MOV	R9,#16000
 delayLoop2
 	SUBS	R9,#1
 	BNE	delayLoop2
-	SUBS	R8,R8,#1
+	SUBS	R6,R6,#1
 	BNE	delayLoop1
 	BX	LR
 
@@ -201,6 +176,36 @@ wasPushed SPACE 4
 loop  
 
 	  B    loop
+;	
+;breathing led code
+;	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
+;	MOV R1,#0x132000
+;	ADD	R1,R1,R1				;R1 has the ammount of time for the On delay
+;	MOV	R2,#0x0					;R2 has the ammount of time for the Off delay
+;delay 1, on delay	
+;	MOV	R3,R1
+;	SUBS R3,#1		
+;wait3
+	;BNE	wait3		;delay loop
+;	LDR	R5,[R0]		;load data into R5
+;	MOV	R3,#0x01
+;	BIC	R5,R3
+;	ORR	R5,R3
+;	STR	R5,[R0]
+;delay 2, off delay
+;wait4
+;	MOV	R3,R2
+;	SUBS R3,#1
+;	BNE	wait4		;delay loop
+;	LDR	R5,[R0]		;load datat into R5
+;	MOV	R3,#0xFFE
+;	AND	R5,R3
+;	STR	R5,[R0]
+;check to see if on time should be increasing of decreasing
+;	MOV	R3,#0x132000
+;	ADD	R5,R1,R2
+;for later, make a register you use to determine if you are adding to the on or off register (R5), make a way to flip that determining register from a 1 or 0
+;make a loop that subtracts from R1 and adds to R2 if R5 is 1 or 0 and visa versa
 
       ALIGN      ; make sure the end of this section is aligned
       END        ; end of file
