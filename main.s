@@ -89,14 +89,29 @@ Start
 	LDR	R0,=GPIO_PORTE_AFSEL_R	;clears AFSEL
 	MOV	R1,#0x0
 	STR R1,[R0]
-	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of data storage for port e
 
 loop2
-	MOV	R1, #0x132000
+	LDR R0, =GPIO_PORTF_DATA_R
+	LDR R1, [R0]
+	AND R1, R1, #0x10	; Isolate PF4
+	BNE	flash
+		
+flash	
+	LDR R0, =GPIO_PORTE_DATA_R
+	LDR R5, [R1]
+	AND	R5, R5, #0x2	; Mask PORTE_DATA so that only PE1(button) is kept
+	BEQ	not0			; Takes branch if button has not been pressed
+	ADD R4, R4, #1		; Increments 
+	SUBS R5, R4, #6
+	BNE not0			; Checks to see if buton has been pressed 5 times meaning it should be at 0%
+	AND R4, R4, #0		; R4 has the multiplier for %20 incrememnts of the led time on
+
+
+	MOV	R1, #0x132000		;1/16th of a second
 wait
-	SUBS R1,#1
+	SUBS R1,#1		
 	BNE	wait		;delay loop
-	LDR	R2,[R0]		;load datat into R2
+	LDR	R2,[R0]		;load data into R2
 	MOV	R1,#0x01
 	BIC	R2,R1
 	ORR	R2,R1
