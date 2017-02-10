@@ -180,19 +180,21 @@ wait2
 	B loop2
 
 ;*******************************************************************************
-;Delay subroutine, punt number of ms to delay in R0, uses R1 and R0
+;Delay subroutine, punt number of ms to delay in R8, uses R8 and R9
 DelaySubroutine
-	CMP	R0,#0
-	BNE	LR
-	SUBS R0,#1
+	CMP	R8,#0
+	BNE	delaySkip
+	BX	LR
+delaySkip	
+	SUBS R8,#1
 delayLoop1
-	MOV	R1,#16000
+	MOV	R9,#16000
 delayLoop2
-	SUBS	R1,#1
+	SUBS	R9,#1
 	BNE	delayLoop2
-	SUBS	R0,R0,#1
+	SUBS	R8,R8,#1
 	BNE	delayLoop1
-	B	LR
+	BX	LR
 
 wasPushed SPACE 4
 
