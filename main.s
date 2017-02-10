@@ -38,7 +38,7 @@ GPIO_PORTF_DIR_R   EQU 0x40025400
 GPIO_PORTF_AFSEL_R EQU 0x40025420
 GPIO_PORTF_PUR_R   EQU 0x40025510
 GPIO_PORTF_DEN_R   EQU 0x4002551C
-initial EQU 0x7A120
+initial EQU 0x7A120				;16000 for 1ms when P = 3
 
 SYSCTL_RCGCGPIO_R  EQU 0x400FE608
        IMPORT  TExaS_Init
@@ -59,7 +59,7 @@ Start
 	NOP
 	LDR	R0,=GPIO_PORTE_DIR_R	;enable direction
 	LDR	R2,[R0]
-	MOV	R1,#0x01					;ports E1 and F4 are outputs
+	MOV	R1,#0x01					;ports E0 and F4 are outputs
 	ORR R2,R1
 	MOV	R1,#0xFFFFFFFD
 	AND	R2,R1
@@ -91,6 +91,7 @@ Start
 	MOV	R1,#0x0
 	STR R1,[R0]
 	MOV R4, #1
+	MOV R6, #0
 loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
@@ -98,12 +99,21 @@ loop2
 	BNE	flash
 						; Breathing LED
 flash	
-	
 	LDR R0, =GPIO_PORTE_DATA_R
+	ADD	R6, R6, #0
+	BEQ skip
+	LDR R5, [R0]
+	AND R5, R5, #0x2
+	BNE noreset
+	AND R6, R6, #0
+noreset
+	B not0
+skip
 	LDR R5, [R0]
 	AND	R5, R5, #0x2	; Mask PORTE_DATA so that only PE1(button) is kept
 	BEQ	not0			; Takes branch if button has not been pressed
-	ADD R4, R4, #1		; Increments 
+	ADD R4, R4, #1		; Increments
+	ADD R6, R6, #1		; R6 = 1 means button has been pressed and hasn't been released yet
 	SUBS R5, R4, #6
 	BNE not0			; Checks to see if buton has been pressed 5 times meaning it should be at 0%
 	AND R4, R4, #0		; R4 has the multiplier for %20 incrememnts of the led time on
