@@ -170,7 +170,7 @@ wait
 wait2
 	SUBS R1,#1
 	BNE	wait2		;delay loop
-	LDR	R2,[R0]		;load datat into R2
+	LDR	R2,[R0]		;load data into R2
 	MOV	R1,#0xFFE
 	AND	R2,R1
 	STR	R2,[R0]
