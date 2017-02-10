@@ -38,6 +38,8 @@ GPIO_PORTF_DIR_R   EQU 0x40025400
 GPIO_PORTF_AFSEL_R EQU 0x40025420
 GPIO_PORTF_PUR_R   EQU 0x40025510
 GPIO_PORTF_DEN_R   EQU 0x4002551C
+initial EQU 0x7A120
+eigth EQU 0x2625A0
 
 SYSCTL_RCGCGPIO_R  EQU 0x400FE608
        IMPORT  TExaS_Init
@@ -95,8 +97,9 @@ loop2
 	LDR R1, [R0]
 	AND R1, R1, #0x10	; Isolate PF4
 	BNE	flash
-		
+						; Breathing LED
 flash	
+	MOV	R4, #1
 	LDR R0, =GPIO_PORTE_DATA_R
 	LDR R5, [R1]
 	AND	R5, R5, #0x2	; Mask PORTE_DATA so that only PE1(button) is kept
@@ -106,17 +109,18 @@ flash
 	BNE not0			; Checks to see if buton has been pressed 5 times meaning it should be at 0%
 	AND R4, R4, #0		; R4 has the multiplier for %20 incrememnts of the led time on
 
-
-	MOV	R1, #0x132000		;1/16th of a second
+not0	LDR R1, =initial	;1/40th of a second
+	MUL R1, R1, R4
+	LDR R2, =eigth
+	SUB R2, R2, R1			; Puts 20%*R4 in R1 and subtracts it from eigth of a second >> R2
 wait
-	SUBS R1,#1		
+	SUBS R2,#1		
 	BNE	wait		;delay loop
 	LDR	R2,[R0]		;load data into R2
-	MOV	R1,#0x01
-	BIC	R2,R1
-	ORR	R2,R1
-	STR	R2,[R0]
-	MOV	R1,#0x132000
+	MOV	R3,#0x01
+	BIC	R2,R3
+	ORR	R2,R3
+	STR	R2,[R0]		; Turns on the LED
 wait2
 	SUBS R1,#1
 	BNE	wait2		;delay loop
