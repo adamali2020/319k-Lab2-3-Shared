@@ -99,8 +99,8 @@ loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
 	ANDS R1, R1, #0x10	; Isolate PF4
-	BNE flash
-flash	
+	BEQ Breathe
+;Main Routine******************************************	
 	LDR R1, =GPIO_PORTE_DATA_R
 	LDR R0, [R1]
 	ANDS R0, R0, #0x2
@@ -170,42 +170,78 @@ delayLoop2
 	SUBS	R6,R6,#1
 	BNE	delayLoop1
 	BX	LR
+;*****************************************************************************************
+;Breating subroutine
+Breathe	
+	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
+	MOV R1,#100			;R1 has the ammount of time for the On delay
+	MOV	R2,#0			;R2 has the ammount of time for the Off delay
+	MOV	R3,#0			;R3 has 0 if the on time should be decreasing and 1 if on time should be increasing
+;delay 1, on delay	
+	MOV	R6,R1
+	BX	BreatheDelay
+	LDR	R5,[R0]		;load data into R5
+	MOV	R3,#0x01
+	BIC	R5,R3
+	ORR	R5,R3
+	STR	R5,[R0]
+;delay 2, off delay
+	MOV	R6,R2
+	BX	BreatheDelay
+	LDR	R5,[R0]		;load datat into R5
+	MOV	R3,#0xFFE
+	AND	R5,R3
+	STR	R5,[R0]
+;check to see if on time should be increasing of decreasing and change R3 accorsingly
+	CMP	R2,#0
+	BNE	BrtSkip1
+	MOV	R3,#0
+BrtSkip1
+	CMP	R1,#0
+	BNE	BrtSkip2
+	MOV	R3,#1
+BrtSkip2
+;check R3 to see if R1 or R2 should increase
+	ADDS	R3,#0
+	BNE	IncOnTime
+	ADD	R2,#1
+	SUB	R1,#1
+IncOnTime
+	ADD	R1,#1
+	SUB	R2,#1
+B	loop2
+	
+
+
+
+;for later, make a register you use to determine if you are adding to the on or off register (R5), make a way to flip that determining register from a 1 or 0
+;make a loop that subtracts from R1 and adds to R2 if R5 is 1 or 0 and visa versa
+
+
+;*****************************************************************************
+;Breathing DelaySubroutine, delays R6*something seconds, uses R6 and R9
+BreatheDelay
+	ADDS	R6,#0
+	BNE	BDelaySkip
+	BX	LR
+BDelaySkip	
+	SUBS R6,#1
+BDelayLoop1
+	MOV	R9,#160
+BDelayLoop2
+	SUBS	R9,#1
+	BNE	BDelayLoop2
+	SUBS	R6,R6,#1
+	BNE	BDelayLoop1
+	BX	LR
+
 
 wasPushed SPACE 4
 
 loop  
 
 	  B    loop
-;	
-;breathing led code
-;	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
-;	MOV R1,#0x132000
-;	ADD	R1,R1,R1				;R1 has the ammount of time for the On delay
-;	MOV	R2,#0x0					;R2 has the ammount of time for the Off delay
-;delay 1, on delay	
-;	MOV	R3,R1
-;	SUBS R3,#1		
-;wait3
-	;BNE	wait3		;delay loop
-;	LDR	R5,[R0]		;load data into R5
-;	MOV	R3,#0x01
-;	BIC	R5,R3
-;	ORR	R5,R3
-;	STR	R5,[R0]
-;delay 2, off delay
-;wait4
-;	MOV	R3,R2
-;	SUBS R3,#1
-;	BNE	wait4		;delay loop
-;	LDR	R5,[R0]		;load datat into R5
-;	MOV	R3,#0xFFE
-;	AND	R5,R3
-;	STR	R5,[R0]
-;check to see if on time should be increasing of decreasing
-;	MOV	R3,#0x132000
-;	ADD	R5,R1,R2
-;for later, make a register you use to determine if you are adding to the on or off register (R5), make a way to flip that determining register from a 1 or 0
-;make a loop that subtracts from R1 and adds to R2 if R5 is 1 or 0 and visa versa
+
 
       ALIGN      ; make sure the end of this section is aligned
       END        ; end of file
