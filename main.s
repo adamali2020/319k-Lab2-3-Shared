@@ -92,6 +92,9 @@ Start
 	STR R1,[R0]
 	MOV R4, #1
 	MOV R6, #0
+	MOV R1,#0
+	LDR	R2,=wasPushed
+	STR	R1,[R2]
 loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
@@ -190,6 +193,8 @@ delayLoop2
 	SUBS	R0,R0,#1
 	BNE	delayLoop1
 	B	LR
+
+wasPushed SPACE 4
 
 loop  
 
