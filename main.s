@@ -96,8 +96,43 @@ loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
 	AND R1, R1, #0x10	; Isolate PF4
+;<<<<<<< HEAD
+	BNE	flash			;Branch to non-breathing part of code
+;**********************************************************
+;breathing led code
+	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
+	MOV R1,#0x132000
+	ADD	R1,R1,R1				;R1 has the ammount of time for the On delay
+	MOV	R2,#0x0					;R2 has the ammount of time for the Off delay
+;delay 1, on delay	
+	MOV	R3,R1
+	SUBS R3,#1		
+wait3
+	BNE	wait3		;delay loop
+	LDR	R5,[R0]		;load data into R5
+	MOV	R3,#0x01
+	BIC	R5,R3
+	ORR	R5,R3
+	STR	R5,[R0]
+;delay 2, off delay
+wait4
+	MOV	R3,R2
+	SUBS R3,#1
+	BNE	wait4		;delay loop
+	LDR	R5,[R0]		;load datat into R5
+	MOV	R3,#0xFFE
+	AND	R5,R3
+	STR	R5,[R0]
+;check to see if on time should be increasing of decreasing
+	MOV	R3,#0x132000
+	ADD	R5,R1,R2
+;for later, make a register you use to determine if you are adding to the on or off register (R5), make a way to flip that determining register from a 1 or 0
+;make a loop that subtracts from R1 and adds to R2 if R5 is 1 or 0 and visa versa
+	B 	loop2	
+	
 	BNE	flash
 						; Breathing LED
+;>>>>>>> origin/master
 flash	
 	LDR R0, =GPIO_PORTE_DATA_R
 	ADD	R6, R6, #0
