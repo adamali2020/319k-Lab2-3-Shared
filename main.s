@@ -176,6 +176,20 @@ wait2
 	STR	R2,[R0]
 	B loop2
 
+;*******************************************************************************
+;Delay subroutine, punt number of ms to delay in R0, uses R1 and R0
+DelaySubroutine
+	CMP	R0,#0
+	BNE	LR
+	SUBS R0,#1
+delayLoop1
+	MOV	R1,#16000
+delayLoop2
+	SUBS	R1,#1
+	BNE	delayLoop2
+	SUBS	R0,R0,#1
+	BNE	delayLoop1
+	B	LR
 
 loop  
 
