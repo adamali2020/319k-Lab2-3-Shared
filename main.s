@@ -41,10 +41,17 @@ GPIO_PORTF_DEN_R   EQU 0x4002551C
 initial EQU 0x7A120				;16000 for 1ms when P = 3
 
 SYSCTL_RCGCGPIO_R  EQU 0x400FE608
-       IMPORT  TExaS_Init
-       AREA    |.text|, CODE, READONLY, ALIGN=2
-       THUMB
-       EXPORT  Start
+	IMPORT  TExaS_Init
+	AREA	DATA, ALIGN=2
+	EXPORT	onTime [DATA,SIZE=4]
+	EXPORT	offTime [DATA,SIZE=4]
+	EXPORT	breatheSetup [DATA,SIZE=4]
+onTime			SPACE	4
+offTime			SPACE	4
+breatheSetup	SPACE	4
+	AREA    |.text|, CODE, READONLY, ALIGN=2
+	THUMB
+	EXPORT  Start
 Start
  ; TExaS_Init sets bus clock at 80 MHz
       BL  TExaS_Init ; voltmeter, scope on PD3
@@ -91,15 +98,20 @@ Start
 	MOV	R1,#0x0
 	STR R1,[R0]
 	MOV R4, #1
-	MOV R7, #0
-	MOV R1,#0
-	LDR	R2,=wasPushed
-	STR	R1,[R2]
+	MOV R7, #0			;R7 indicated weather the button PE1 was pushed so that we can increment on time when button is released
+	LDR	R1,=breatheSetup
+	MOV	R2,#1
+	STR	R2,[R1]
+
+
 loop2
 	LDR R0, =GPIO_PORTF_DATA_R
 	LDR R1, [R0]
 	ANDS R1, R1, #0x10	; Isolate PF4
 	BEQ Breathe
+	LDR	R1,=breatheSetup	;If we don't go toe breathe we need to do the set up for the subroutine again
+	MOV	R2,#1
+	STR	R2,[R1]
 ;Main Routine******************************************	
 	LDR R1, =GPIO_PORTE_DATA_R
 	LDR R0, [R1]
@@ -172,43 +184,75 @@ delayLoop2
 	BX	LR
 ;*****************************************************************************************
 ;Breating subroutine
-Breathe	
+Breathe
+;Do we need to do set up for Breathe?
 	LDR	R0,=GPIO_PORTE_DATA_R	;R0 has address of port e data
-	MOV R1,#100			;R1 has the ammount of time for the On delay
-	MOV	R2,#0			;R2 has the ammount of time for the Off delay
-	MOV	R3,#0			;R3 has 0 if the on time should be decreasing and 1 if on time should be increasing
+	LDR	R1,=breatheSetup
+	LDR	R2,[R1]
+	CMP	R2,#0
+	BEQ	skipBreatheSetup
+	LDR	R1,=breatheSetup		;turn off breatheSetup so we don;t run it again unless we go to the other routine again
+	MOV	R2,#0
+	STR	R2,[R1]
+	LDR R1,=onTime			;onTime has the ammount of time for the On delay
+	MOV	R2,#100
+	STR	R2,[R1]
+	LDR	R1,=offTime			;offTime has the ammount of time for the Off delay
+	MOV	R2,#0
+	STR	R2,[R1]
+	MOV	R10,#0				;R10 has 0 if the on time should be decreasing and 1 if on time should be increasing
+skipBreatheSetup
 ;delay 1, on delay	
-	MOV	R6,R1
-	BL	BreatheDelay
 	LDR	R5,[R0]		;load data into R5
 	MOV	R3,#0x01
 	BIC	R5,R3
 	ORR	R5,R3
-	STR	R5,[R0]
-;delay 2, off delay
-	MOV	R6,R2
+	STR	R5,[R0]		;Turn on LED
+	LDR	R1,=onTime
+	LDR	R6,[R1]
 	BL	BreatheDelay
+;delay 2, off delay
 	LDR	R5,[R0]		;load datat into R5
 	MOV	R3,#0xFFE
 	AND	R5,R3
-	STR	R5,[R0]
-;check to see if on time should be increasing of decreasing and change R3 accorsingly
+	STR	R5,[R0]		;Turn off LED
+	LDR	R1,=offTime
+	LDR	R6,[R1]
+	BL	BreatheDelay
+;check to see if on time should be increasing or decreasing and change R10 accordingly
+	LDR	R1,=offTime
+	LDR	R2,[R1]
 	CMP	R2,#0
 	BNE	BrtSkip1
-	MOV	R3,#0
+	MOV	R10,#0
 BrtSkip1
-	CMP	R1,#0
+	LDR	R1,=onTime
+	LDR	R2,[R1]
+	CMP	R2,#0
 	BNE	BrtSkip2
-	MOV	R3,#1
+	MOV	R10,#1
 BrtSkip2
-;check R3 to see if R1 or R2 should increase
-	ADDS	R3,#0
+;check R10 to see if onTime or offTime should increase
+	CMP	R10,#0
 	BNE	IncOnTime
+	LDR	R1,=offTime
+	LDR	R2,[R1]
 	ADD	R2,#1
-	SUB	R1,#1
-IncOnTime
-	ADD	R1,#1
+	STR	R2,[R1]
+	LDR	R1,=onTime
+	LDR	R2,[R1]
 	SUB	R2,#1
+	STR	R2,[R1]
+	B loop2
+IncOnTime
+	LDR	R1,=offTime
+	LDR	R2,[R1]
+	SUB	R2,#1
+	STR	R2,[R1]
+	LDR	R1,=onTime
+	LDR	R2,[R1]
+	ADD	R2,#1
+	STR	R2,[R1]
 	B	loop2
 	
 
@@ -231,12 +275,13 @@ BDelayLoop1
 BDelayLoop2
 	SUBS	R9,#1
 	BNE	BDelayLoop2
+	CMP		R6,#0
+	BEQ		BDelaySkip2
 	SUBS	R6,R6,#1
 	BNE	BDelayLoop1
+BDelaySkip2
 	BX	LR
 
-
-wasPushed SPACE 4
 
 loop  
 
