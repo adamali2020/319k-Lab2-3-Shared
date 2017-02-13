@@ -175,7 +175,7 @@ DelaySubroutine
 delaySkip	
 	SUBS R6,#1
 delayLoop1
-	MOV	R9,#16000
+	MOV	R9,#13500
 delayLoop2
 	SUBS	R9,#1
 	BNE	delayLoop2
@@ -195,7 +195,7 @@ Breathe
 	MOV	R2,#0
 	STR	R2,[R1]
 	LDR R1,=onTime			;onTime has the ammount of time for the On delay
-	MOV	R2,#100
+	MOV	R2,#300
 	STR	R2,[R1]
 	LDR	R1,=offTime			;offTime has the ammount of time for the Off delay
 	MOV	R2,#0

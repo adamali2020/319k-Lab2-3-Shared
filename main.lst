@@ -276,7 +276,7 @@ ARM Macro Assembler    Page 5
   175 00000112         delaySkip
   176 00000112 3E01            SUBS             R6,#1
   177 00000114         delayLoop1
-  178 00000114 F44F 597A       MOV              R9,#16000
+  178 00000114 F243 49BC       MOV              R9,#13500
   179 00000118         delayLoop2
   180 00000118 F1B9 0901       SUBS             R9,#1
   181 0000011C D1FC            BNE              delayLoop2
@@ -305,7 +305,7 @@ ARM Macro Assembler    Page 5
   197 00000136 4935            LDR              R1,=onTime  ;onTime has the amm
                                                             ount of time for th
                                                             e On delay
-  198 00000138 F04F 0264       MOV              R2,#100
+  198 00000138 F44F 7296       MOV              R2,#300
   199 0000013C 600A            STR              R2,[R1]
   200 0000013E 4934            LDR              R1,=offTime ;offTime has the am
                                                             mount of time for t
@@ -441,7 +441,7 @@ ARM Macro Assembler    Page 7
               00000000 
               00000000 
 Command Line: --debug --xref --cpu=Cortex-M4 --apcs=interwork --depend=.\main.d
- -o.\main.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include -IC:\Keil\ARM\In
+ -o.\main.o -ID:\Keil\ARM\RV31\INC -ID:\Keil\ARM\CMSIS\Include -ID:\Keil\ARM\In
 c\Luminary --predefine="__EVAL SETA 1" --list=.\main.lst main.s
 
 
